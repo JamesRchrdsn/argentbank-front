@@ -19,6 +19,8 @@ body {
 
 .bg-dark {
   background-color: #12002b;
+  display: flex;
+  flex-direction: column;
 }
 
 .sr-only {
@@ -68,6 +70,15 @@ body {
 .main-nav-logo-image {
   max-width: 100%;
   width: 200px;
+}
+
+.fa {
+  margin-right: 4px;
+}
+
+.sign-out {
+  display: flex;
+  gap: 10px;
 }
 
 .hero {
@@ -163,14 +174,15 @@ body {
   border-color: #00bc77;
   background-color: #00bc77;
   color: #fff;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .sign-in-content {
   box-sizing: border-box;
   background-color: white;
   width: 300px;
-  margin: 0 auto;
-  margin-top: 3rem;
+  margin: 3rem auto;
   padding: 2rem;
 }
 
