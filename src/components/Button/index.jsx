@@ -1,7 +1,7 @@
 import React from "react";
 
-const Button = ({ children, onClick }) => (
-  <button className="sign-in-button" onClick={onClick}>
+const Button = ({ className, children, onClick }) => (
+  <button className={className} onClick={onClick} type="submit">
     {children}
   </button>
 );

@@ -3,36 +3,28 @@ import axios from "axios";
 
 const initialState = {
   user: null,
-  token:
-    localStorage.getItem("token") || sessionStorage.getItem("token") || null,
-  email: localStorage.getItem("email") || "",
+  token: null,
+  userName: "",
   status: "idle",
   error: null,
   rememberMe: false,
 };
 
-export const loginUser = createAsyncThunk(
-  "user/loginUser",
-  async ({ email, password, rememberMe }, thunkAPI) => {
+export const login = createAsyncThunk(
+  "user/login",
+  async ({ email, password }, thunkAPI) => {
     try {
       const response = await axios.post(
         "http://localhost:3001/api/v1/user/login",
         { email, password }
       );
-      if (rememberMe) {
-        localStorage.setItem("token", response.data.body.token);
-        localStorage.setItem("email", email);
-        localStorage.setItem("user", JSON.stringify(response.data.body.user));
+      const data = response.data;
+      if (data.body.token) {
+        localStorage.setItem("token", data.body.token);
+        return data.body;
       } else {
-        sessionStorage.setItem("token", response.data.body.token);
-        sessionStorage.setItem("user", JSON.stringify(response.data.body.user));
+        return thunkAPI.rejectWithValue(data);
       }
-      return {
-        token: response.data.body.token,
-        user: response.data.body.user,
-        email,
-        rememberMe,
-      };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -42,14 +34,41 @@ export const loginUser = createAsyncThunk(
 export const fetchProfile = createAsyncThunk(
   "user/fetchProfile",
   async (_, thunkAPI) => {
-    const state = thunkAPI.getState();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return thunkAPI.rejectWithValue({ message: "No token" });
+    }
     try {
       const response = await axios.post(
         "http://localhost:3001/api/v1/user/profile",
         {},
         {
           headers: {
-            Authorization: `Bearer ${state.user.token}`,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const updateUserName = createAsyncThunk(
+  "user/updateUserName",
+  async (newUserName, thunkAPI) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return thunkAPI.rejectWithValue({ message: "No token" });
+    }
+    try {
+      const response = await axios.put(
+        "http://localhost:3001/api/v1/user/profile",
+        { userName: newUserName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -67,46 +86,51 @@ const userSlice = createSlice({
     clearUser(state) {
       state.user = null;
       state.token = null;
-      state.email = "";
       localStorage.removeItem("token");
-      localStorage.removeItem("email");
-      localStorage.removeItem("user");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("user");
+    },
+    setRememberMe(state, action) {
+      state.rememberMe = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
+      .addCase(login.pending, (state) => {
         state.status = "loading";
-        state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.token = action.payload.token;
-        state.user = action.payload.user;
-        state.email = action.payload.email;
-        state.rememberMe = action.payload.rememberMe;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(login.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload.message;
       })
       .addCase(fetchProfile.pending, (state) => {
         state.status = "loading";
-        state.error = null;
       })
       .addCase(fetchProfile.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload;
+        state.userName = action.payload.userName;
       })
       .addCase(fetchProfile.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload.message;
+      })
+      .addCase(updateUserName.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateUserName.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.userName = action.payload.userName;
+      })
+      .addCase(updateUserName.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload.message;
       });
   },
 });
 
-export const { clearUser } = userSlice.actions;
+export const { clearUser, setRememberMe } = userSlice.actions;
 
 export default userSlice.reducer;

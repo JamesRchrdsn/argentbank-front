@@ -1,35 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../store/slices/userSlice.js";
+import { login, setRememberMe } from "../../store/slices/userSlice.js";
 import { useNavigate } from "react-router-dom";
+import Button from "../Button";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState(null);
+  const [rememberMe, setRemember] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status } = useSelector((state) => state.user);
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("email");
-    if (storedEmail) {
-      setEmail(storedEmail);
-      setRememberMe(true);
-    }
-  }, []);
+  const error = useSelector((state) => state.user.error);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await dispatch(loginUser({ email, password, rememberMe })).unwrap();
+    const resultAction = await dispatch(login({ email, password }));
+    if (login.fulfilled.match(resultAction)) {
+      if (rememberMe) {
+        dispatch(setRememberMe(true));
+        localStorage.setItem("userEmail", email);
+      } else {
+        localStorage.removeItem("userEmail");
+      }
       navigate("/user");
-    } catch (err) {
-      setError(err.message);
+    } else {
+      console.error("Failed to Login", resultAction.payload);
     }
   };
-
   return (
     <div>
       <form className="sign-in-form" onSubmit={handleSubmit}>
@@ -61,20 +58,16 @@ const LoginForm = () => {
             id="remember-me"
             checked={rememberMe}
             onChange={(e) => {
-              setRememberMe(e.target.checked);
+              setRemember(e.target.checked);
             }}
           />
           <label htmlFor="remember-me">Remember me</label>
         </div>
-        <button
-          type="submit"
-          className="sign-in-button"
-          disabled={status === "loading"}
-        >
+        {error && <p className="error">{error}</p>}
+        <Button className="sign-in-button" type="submit">
           Sign In
-        </button>
+        </Button>
       </form>
-      {error && <p>{error}</p>}
     </div>
   );
 };
