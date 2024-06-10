@@ -12,7 +12,7 @@ const initialState = {
 
 export const login = createAsyncThunk(
   "user/login",
-  async ({ email, password }, thunkAPI) => {
+  async ({ email, password, rememberMe }, thunkAPI) => {
     try {
       const response = await axios.post(
         "http://localhost:3001/api/v1/user/login",
@@ -21,7 +21,14 @@ export const login = createAsyncThunk(
       const data = response.data;
       if (data.body.token) {
         localStorage.setItem("token", data.body.token);
-        return data.body;
+        if (rememberMe) {
+          localStorage.setItem("email", email);
+          localStorage.setItem("password", password);
+        } else {
+          localStorage.removeItem("email");
+          localStorage.removeItem("password");
+        }
+        return { ...data.body, rememberMe };
       } else {
         return thunkAPI.rejectWithValue(data);
       }
@@ -100,6 +107,7 @@ const userSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.token = action.payload.token;
+        state.rememberMe = action.payload.rememberMe;
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";

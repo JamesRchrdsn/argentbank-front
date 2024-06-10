@@ -1,12 +1,14 @@
 import React from "react";
 
-const Field = ({ label, type, value, onChange, onEnterPress }) => {
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      onEnterPress();
-    }
-  };
-
+const Field = ({
+  label,
+  type,
+  value,
+  onChange,
+  onKeyDown,
+  required,
+  autoComplete,
+}) => {
   return (
     <div className="input-wrapper">
       <label>{label}</label>
@@ -14,7 +16,9 @@ const Field = ({ label, type, value, onChange, onEnterPress }) => {
         type={type}
         value={value}
         onChange={onChange}
-        onKeyDown={handleKeyDown}
+        onKeyDown={onKeyDown}
+        required={required}
+        autoComplete={autoComplete}
       />
     </div>
   );

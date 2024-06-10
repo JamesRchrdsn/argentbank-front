@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login, setRememberMe } from "../../store/slices/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import Button from "../Button";
+import Field from "../Field";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -10,46 +11,57 @@ const LoginForm = () => {
   const [rememberMe, setRemember] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const error = useSelector((state) => state.user.error);
+  const { status, error } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("email");
+    const savedPassword = localStorage.getItem("password");
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRemember(true);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const resultAction = await dispatch(login({ email, password }));
-    if (login.fulfilled.match(resultAction)) {
-      if (rememberMe) {
-        dispatch(setRememberMe(true));
-        localStorage.setItem("userEmail", email);
-      } else {
-        localStorage.removeItem("userEmail");
+    dispatch(setRememberMe(rememberMe));
+    dispatch(login({ email, password, rememberMe })).then(() => {
+      if (status === "succeeded") {
+        navigate("/user");
       }
-      navigate("/user");
-    } else {
-      console.error("Failed to Login", resultAction.payload);
+    });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit(e);
     }
   };
+
   return (
     <div>
       <form className="sign-in-form" onSubmit={handleSubmit}>
         <div className="input-wrapper">
-          <label htmlFor="email">Email:</label>
-          <input
+          <Field
+            label="Email"
             type="email"
-            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
+            onKeyDown={handleKeyDown}
             required
+            autoComplete="email"
           />
         </div>
         <div className="input-wrapper">
-          <label htmlFor="password">Password</label>
-          <input
+          <Field
+            label="Password"
             type="password"
-            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
+            onKeyDown={handleKeyDown}
             required
+            autoComplete="current-password"
           />
         </div>
         <div className="input-remember">
@@ -57,9 +69,7 @@ const LoginForm = () => {
             type="checkbox"
             id="remember-me"
             checked={rememberMe}
-            onChange={(e) => {
-              setRemember(e.target.checked);
-            }}
+            onChange={(e) => setRemember(!rememberMe)}
           />
           <label htmlFor="remember-me">Remember me</label>
         </div>
