@@ -3,7 +3,7 @@ import axios from "axios";
 
 const initialState = {
   user: null,
-  token: null,
+  token: localStorage.getItem("token") || null,
   userName: "",
   status: "idle",
   error: null,
@@ -23,10 +23,8 @@ export const login = createAsyncThunk(
         localStorage.setItem("token", data.body.token);
         if (rememberMe) {
           localStorage.setItem("email", email);
-          localStorage.setItem("password", password);
         } else {
           localStorage.removeItem("email");
-          localStorage.removeItem("password");
         }
         return { ...data.body, rememberMe };
       } else {

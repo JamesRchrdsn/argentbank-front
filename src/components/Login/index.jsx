@@ -4,33 +4,52 @@ import { login, setRememberMe } from "../../store/slices/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import Button from "../Button";
 import Field from "../Field";
+import Checkbox from "../Checkbox";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRemember] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, error } = useSelector((state) => state.user);
+  const { token, error, rememberMe } = useSelector((state) => state.user);
+  const [email, setEmail] = useState(localStorage.getItem("email") || "");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(rememberMe);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/profile");
+    }
+  }, [navigate, token]);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("email");
-    const savedPassword = localStorage.getItem("password");
-    if (savedEmail && savedPassword) {
+    if (savedEmail) {
       setEmail(savedEmail);
-      setPassword(savedPassword);
       setRemember(true);
     }
   }, []);
 
+  const handleRememberChange = () => {
+    setRemember(!remember);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(setRememberMe(rememberMe));
-    dispatch(login({ email, password, rememberMe })).then(() => {
-      if (status === "succeeded") {
-        navigate("/user");
+    const resultAction = await dispatch(
+      login({ email, password, rememberMe: remember })
+    );
+    if (login.fulfilled.match(resultAction)) {
+      if (remember) {
+        dispatch(setRememberMe(true));
+        localStorage.setItem("email", email);
+        localStorage.setItem("token", resultAction.payload.token);
+      } else {
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("token");
       }
-    });
+      navigate("/profile");
+    } else {
+      console.error("Failed to login", resultAction.payload);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -65,13 +84,11 @@ const LoginForm = () => {
           />
         </div>
         <div className="input-remember">
-          <input
-            type="checkbox"
-            id="remember-me"
-            checked={rememberMe}
-            onChange={(e) => setRemember(!rememberMe)}
+          <Checkbox
+            checked={remember}
+            onChange={handleRememberChange}
+            label="Remember me"
           />
-          <label htmlFor="remember-me">Remember me</label>
         </div>
         {error && <p className="error">{error}</p>}
         <Button className="sign-in-button" type="submit">

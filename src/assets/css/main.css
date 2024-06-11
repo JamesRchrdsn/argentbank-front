@@ -132,7 +132,7 @@ body {
 }
 
 .modal-content {
-  background: #2c3e50;
+  background: #12002b;
   padding: 0 20px;
   border-radius: 4px;
   max-width: 500px;
@@ -166,6 +166,30 @@ body {
   background: none;
   border: none;
   font-size: 3rem;
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  margin-top: 60px;
+  gap: 20px;
+  background-color: #12002b;
+  padding-bottom: 80px;
+}
+
+.title-error {
+  font-size: 100px;
+  color: white;
+}
+
+.text-error {
+  font-size: 50px;
+  color: white;
+}
+
+.link-error {
+  font-size: 50px;
+  color: white;
 }
 
 @media (min-width: 920px) {

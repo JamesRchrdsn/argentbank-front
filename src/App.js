@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { fetchProfile } from "./store/slices/userSlice";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -26,13 +27,14 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/sign-in" element={<Signin />} />
         <Route
-          path="/user"
+          path="/profile"
           element={
             <ProtectedRoute>
               <User />
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
     </Router>
