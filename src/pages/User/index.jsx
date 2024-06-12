@@ -1,19 +1,8 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProfile } from "../../store/slices/userSlice";
+import React from "react";
 import Profil from "../../components/Profil";
 import AccountSection from "../../components/AccountSection";
 
 const User = () => {
-  const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchProfile());
-    }
-  }, [dispatch, token]);
-
   return (
     <>
       <main className="main bg-dark">
