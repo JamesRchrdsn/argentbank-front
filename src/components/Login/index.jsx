@@ -41,10 +41,8 @@ const LoginForm = () => {
       if (remember) {
         dispatch(setRememberMe(true));
         localStorage.setItem("email", email);
-        localStorage.setItem("token", resultAction.payload.token);
       } else {
         localStorage.removeItem("userEmail");
-        localStorage.removeItem("token");
       }
       navigate("/profile");
     } else {
