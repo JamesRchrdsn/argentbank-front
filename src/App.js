@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Home from "./pages/Home";
 import Signin from "./pages/SignIn";
@@ -12,11 +17,12 @@ import NotFound from "./pages/NotFound";
 
 const App = () => {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
+  const token =
+    useSelector((state) => state.user.token) || localStorage.getItem("token");
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchProfile());
+      dispatch(fetchProfile(token));
     }
   }, [dispatch, token]);
 
@@ -25,7 +31,10 @@ const App = () => {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={<Signin />} />
+        <Route
+          path="/sign-in"
+          element={token ? <Navigate to="/profile" /> : <Signin />}
+        />
         <Route
           path="/profile"
           element={

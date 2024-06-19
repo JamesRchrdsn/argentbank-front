@@ -5,7 +5,7 @@ import Button from "../Button";
 
 const Profil = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const userName = useSelector((state) => state.user.userName);
+  const { firstName, lastName } = useSelector((state) => state.user);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -13,7 +13,9 @@ const Profil = () => {
   return (
     <div className="profile-header">
       <h1>Welcome back,</h1>
-      <h1>{userName}!</h1>
+      <h1>
+        {firstName} {lastName}!
+      </h1>
       <Button className="edit-button" onClick={openModal}>
         Edit Name
       </Button>

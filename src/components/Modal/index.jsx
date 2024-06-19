@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import Field from "../Field";
 import Button from "../Button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateUserName } from "../../store/slices/userSlice";
 
 const Modal = ({ show, closeModal }) => {
   const [newUserName, setNewUserName] = useState("");
   const dispatch = useDispatch();
+  const { firstName, lastName } = useSelector((state) => state.user);
   const modalClass = show ? "modal show" : "modal";
 
   const handleSubmit = (e) => {
@@ -27,6 +28,20 @@ const Modal = ({ show, closeModal }) => {
             onChange={(e) => setNewUserName(e.target.value)}
             required
             autoComplete="off"
+          />
+          <Field
+            className="opacity"
+            label="First Name"
+            type="text"
+            value={firstName}
+            readOnly
+          />
+          <Field
+            className="opacity"
+            label="Last Name"
+            type="text"
+            value={lastName}
+            readOnly
           />
           <Button type="submit" className="edit-button">
             Update

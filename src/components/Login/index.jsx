@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, setRememberMe } from "../../store/slices/userSlice.js";
+import {
+  fetchProfile,
+  login,
+  setRememberMe,
+} from "../../store/slices/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import Button from "../Button";
 import Field from "../Field";
@@ -10,7 +14,7 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { token, error, rememberMe } = useSelector((state) => state.user);
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(rememberMe);
 
@@ -21,12 +25,14 @@ const LoginForm = () => {
   }, [navigate, token]);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("email");
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRemember(true);
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      dispatch(fetchProfile(storedToken));
+      if (rememberMe) {
+        navigate("/profile");
+      }
     }
-  }, []);
+  }, [dispatch, navigate, rememberMe]);
 
   const handleRememberChange = () => {
     setRemember(!remember);
@@ -40,9 +46,10 @@ const LoginForm = () => {
     if (login.fulfilled.match(resultAction)) {
       if (remember) {
         dispatch(setRememberMe(true));
-        localStorage.setItem("email", email);
+        localStorage.setItem("token", resultAction.payload.token);
       } else {
-        localStorage.removeItem("userEmail");
+        dispatch(setRememberMe(false));
+        // localStorage.removeItem("token");
       }
       navigate("/profile");
     } else {

@@ -5,6 +5,8 @@ const initialState = {
   user: null,
   token: localStorage.getItem("token") || null,
   userName: "",
+  firstName: "",
+  lastName: "",
   status: "idle",
   error: null,
   rememberMe: false,
@@ -22,9 +24,9 @@ export const login = createAsyncThunk(
       if (data.body.token) {
         localStorage.setItem("token", data.body.token);
         if (rememberMe) {
-          localStorage.setItem("email", email);
+          localStorage.setItem("rememberMe", "true");
         } else {
-          localStorage.removeItem("email");
+          localStorage.removeItem("rememberMe");
         }
         return { ...data.body, rememberMe };
       } else {
@@ -91,7 +93,16 @@ const userSlice = createSlice({
     clearUser(state) {
       state.user = null;
       state.token = null;
-      localStorage.removeItem("token");
+      state.userName = "";
+      state.firstName = "";
+      state.lastName = "";
+      state.status = "idle";
+      state.error = null;
+      state.rememberMe = false;
+      const rememberMe = localStorage.getItem("rememberMe");
+      if (!rememberMe) {
+        localStorage.removeItem("token");
+      }
     },
     setRememberMe(state, action) {
       state.rememberMe = action.payload;
@@ -118,6 +129,9 @@ const userSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload;
         state.userName = action.payload.userName;
+        state.firstName = action.payload.firstName;
+        state.lastName = action.payload.lastName;
+        state.error = null;
       })
       .addCase(fetchProfile.rejected, (state, action) => {
         state.status = "failed";

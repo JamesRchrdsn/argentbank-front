@@ -7,7 +7,10 @@ import logo from "../../assets/img/argentBankLogo.webP";
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.user);
+  const { userName } = useSelector((state) => state.user);
+  const token = useSelector(
+    (state) => state.user.token || localStorage.getItem("token")
+  );
 
   const handleLogout = () => {
     dispatch(clearUser());
@@ -25,12 +28,12 @@ const Header = () => {
           />
           <h1 className="sr-only">Argent Bank</h1>
         </Link>
-        {user ? (
+        {userName ? (
           <div className="sign-out">
             <Link className="main-nav-item" to="/profile">
               {" "}
               <i className="fa fa-user-circle"></i>
-              {user.firstName}
+              {userName}
             </Link>
             <Link onClick={handleLogout} className="main-nav-item" to="/">
               {" "}
@@ -39,7 +42,7 @@ const Header = () => {
             </Link>
           </div>
         ) : (
-          <Link className="main-nav-item" to="/sign-in">
+          <Link className="main-nav-item" to={token ? "/profile" : "/sign-in"}>
             <i className="fa fa-user-circle"></i>
             Sign In
           </Link>
