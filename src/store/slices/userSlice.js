@@ -17,7 +17,7 @@ export const login = createAsyncThunk(
   async ({ email, password, rememberMe }, thunkAPI) => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/v1/user/login",
+        "https://argentbankbackend.onrender.com/api/v1/user/login",
         { email, password }
       );
       const data = response.data;
@@ -47,7 +47,7 @@ export const fetchProfile = createAsyncThunk(
     }
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/v1/user/profile",
+        "https://argentbankbackend.onrender.com/api/v1/user/profile",
         {},
         {
           headers: {
@@ -71,7 +71,7 @@ export const updateUserName = createAsyncThunk(
     }
     try {
       const response = await axios.put(
-        "http://localhost:3001/api/v1/user/profile",
+        "https://argentbankbackend.onrender.com/api/v1/user/profile",
         { userName: newUserName },
         {
           headers: {
